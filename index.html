@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f1419;
+      --bg-card: #1a2332;
+      --bg-card-hover: #243044;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --text: #e8eaed;
+      --text-muted: #9ca3af;
+      --radius: 14px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 24px var(--accent-glow);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(99, 102, 241, 0.08), transparent);
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem 1.5rem;
+    }
+
+    .logo {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab a,
+    .tab span {
+      display: inline-block;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text-muted);
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .tab a:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .tab span {
+      color: var(--text);
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .search-wrap {
+      max-width: 420px;
+      margin: 0 auto 1.5rem;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 2.75rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-input:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      color: var(--text-muted);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 8px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      line-height: 1;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .search-clear:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .search-clear.visible {
+      display: flex;
+    }
+
+    .results-meta {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      min-height: 1.25rem;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--text-muted);
+    }
+
+    .no-results-icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.6;
+    }
+
+    .no-results-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem 3rem;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1.25rem;
+      justify-items: center;
+    }
+
+    .game-card {
+      display: block;
+      width: 100%;
+      max-width: 180px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      background: var(--bg-card-hover);
+      border-color: rgba(59, 130, 246, 0.25);
+    }
+
+    .game-card:active {
+      transform: translateY(-2px);
+    }
+
+    .game-card-image {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(145deg, #252d3a 0%, #1a2332 100%);
+    }
+
+    .game-card-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      background: linear-gradient(145deg, #252d3a 0%, #1a2332 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      opacity: 0.8;
+    }
+
+    .game-card-label {
+      padding: 0.75rem 0.6rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    @media (min-width: 600px) {
+      .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="logo">Game Hub</h1>
+    <p class="subtitle">Pick a game to play</p>
+    <nav class="tabs" aria-label="Main navigation">
+      <div class="tab"><span>Games</span></div>
+      <div class="tab"><a href="UV-Static-2.0-main/active/index.html">UV Proxy</a></div>
+    </nav>
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" class="search-input" id="search-input" placeholder="Search games..." autocomplete="off" />
+      <button type="button" class="search-clear" id="search-clear" aria-label="Clear search">×</button>
+    </div>
+    <p class="results-meta" id="results-meta" aria-live="polite"></p>
+  </header>
+  <main>
+    <div class="games-grid" id="games-grid"></div>
+    <div class="no-results" id="no-results" hidden>
+      <div class="no-results-icon">🔍</div>
+      <div class="no-results-title">No games found</div>
+      <p>Try a different search term</p>
+    </div>
+  </main>
+  <script>
+    const GAMES = [
+      { file: '1v1lol/index.html', name: '1v1lol', image: null },
+      { file: '2048/index.html', name: '2048', image: null },
+      { file: 'adarkroom/index.html', name: 'Adarkroom', image: 'images/darkroom.png' },
+      { file: 'asciispace/index.html', name: 'Asciispace', image: null },
+      { file: 'assessmentexamination/index.html', name: 'Assessmentexamination', image: null },
+      { file: 'asteroids/index.html', name: 'Asteroids', image: null },
+      { file: 'astray/index.html', name: 'Astray', image: null },
+      { file: 'b2exe/b2exe.html', name: 'B2exe', image: 'images/xxb2exe.jpeg' },
+      { file: 'backcountry/index.html', name: 'Backcountry', image: null },
+      { file: 'Backrooms/Backrooms.html', name: 'Backrooms', image: 'images/backrooms.jpeg' },
+      { file: 'baldisbasics/index.html', name: 'Baldisbasics', image: null },
+      { file: 'basketballlegends/index.html', name: 'Basketballlegends', image: null },
+      { file: 'basketballstars/index.html', name: 'Basketballstars', image: null },
+      { file: 'basketbrosio/index.html', name: 'Basketbrosio', image: null },
+      { file: 'basketrandom/index.html', name: 'Basketrandom', image: null },
+      { file: 'bitlife/index.html', name: 'Bitlife', image: null },
+      { file: 'BlackHoleBlackSquare/BlackHoleBlackSquare.html', name: 'Black Hole Black Square', image: 'images/blackholeblacksquare.jpeg' },
+      { file: 'blackholesquare/index.html', name: 'Blackholesquare', image: 'games/games/blackholesquare/icon.png' },
+      { file: 'bounceback/index.html', name: 'Bounceback', image: null },
+      { file: 'boxingrandom/index.html', name: 'Boxingrandom', image: null },
+      { file: 'breaklock/index.html', name: 'Breaklock', image: 'images/breaklock.jpeg' },
+      { file: 'breakout/index.html', name: 'Breakout', image: null },
+      { file: 'btd4/index.html', name: 'Btd4', image: null },
+      { file: 'captaincallisto/index.html', name: 'Captaincallisto', image: null },
+      { file: 'cheap-chess/cheap-chess.html', name: 'Cheap Chess', image: null },
+      { file: 'chess/index.html', name: 'Chess', image: null },
+      { file: 'chromaincident/index.html', name: 'Chromaincident', image: null },
+      { file: 'chromedino/index.html', name: 'Chromedino', image: null },
+      { file: 'clickerheroes/index.html', name: 'Clickerheroes', image: null },
+      { file: 'clusterrush/index.html', name: 'Clusterrush', image: null },
+      { file: 'connect3/index.html', name: 'Connect3', image: null },
+      { file: 'cookieclicker/index.html', name: 'Cookieclicker', image: null },
+      { file: 'coreball/coreball.html', name: 'Coreball', image: 'images/coreball.png' },
+      { file: 'crossyroad/index.html', name: 'Crossyroad', image: null },
+      { file: 'csgoClicker/index.html', name: 'Csgo Clicker', image: 'images/csgoclicker.jpeg' },
+      { file: 'cube-master/cube-master.html', name: 'Cube Master', image: 'images/cubemaster.jpeg' },
+      { file: 'cubefield/index.html', name: 'Cubefield', image: null },
+      { file: 'cubitomayhem/index.html', name: 'Cubitomayhem', image: null },
+      { file: 'cuttherope/index.html', name: 'Cuttherope', image: null },
+      { file: 'cuttheropeholiday/index.html', name: 'Cuttheropeholiday', image: null },
+      { file: 'cuttheropetimetravel/index.html', name: 'Cuttheropetimetravel', image: null },
+      { file: 'darkroom/darkroom.html', name: 'Darkroom', image: 'images/darkroom.png' },
+      { file: 'deathrun3d/index.html', name: 'Deathrun3d', image: null },
+      { file: 'deepestsword/index.html', name: 'Deepestsword', image: null },
+      { file: 'dogeminer/dogeminer.html', name: 'Dogeminer', image: 'images/dogeminer.jpeg' },
+      { file: 'doodlejump/index.html', name: 'Doodlejump', image: 'images/doodlejump.jpeg' },
+      { file: 'doom/index.html', name: 'Doom', image: null },
+      { file: 'drawthehill/index.html', name: 'Drawthehill', image: null },
+      { file: 'drift/index.html', name: 'Drift', image: null },
+      { file: 'drifthunters/index.html', name: 'Drifthunters', image: null },
+      { file: 'drivemad/index.html', name: 'Drivemad', image: null },
+      { file: 'ducklife/index.html', name: 'Ducklife', image: null },
+      { file: 'ducklife2/index.html', name: 'Ducklife2', image: null },
+      { file: 'ducklife3/index.html', name: 'Ducklife3', image: null },
+      { file: 'ducklife4/index.html', name: 'Ducklife4', image: null },
+      { file: 'ducklife5/index.html', name: 'Ducklife5', image: null },
+      { file: 'eaglercraft.1.5.2/eaglercraft.1.5.2.html', name: 'Eaglercraft 1 5 2', image: 'images/eaglercraft.png' },
+      { file: 'eaglercraft.1.8/eaglercraft.1.8.html', name: 'Eaglercraft 1 8', image: 'images/eaglercraft.png' },
+      { file: 'earntodie/index.html', name: 'Earntodie', image: null },
+      { file: 'edgenotfound/index.html', name: 'Edgenotfound', image: 'images/edgenotfound.jpeg' },
+      { file: 'eggycar/index.html', name: 'Eggycar', image: null },
+      { file: 'EvilGlitch/index.html', name: 'Evil Glitch', image: 'images/evil-glitch.jpeg' },
+      { file: 'factoryballsforever/index.html', name: 'Factoryballsforever', image: null },
+      { file: 'fastkat/fastkat.html', name: 'Fastkat', image: null },
+      { file: 'fastkatremastered/fastkatremastered.html', name: 'Fastkatremastered', image: null },
+      { file: 'fireboyandwatergirlforesttemple/index.html', name: 'Fireboyandwatergirlforesttemple', image: null },
+      { file: 'flappy2048/index.html', name: 'Flappy2048', image: null },
+      { file: 'flappybird/index.html', name: 'Flappybird', image: null },
+      { file: 'flappyplane/index.html', name: 'Flappyplane', image: null },
+      { file: 'flightsimulator/index.html', name: 'Flightsimulator', image: null },
+      { file: 'fnaf2/fnaf2.html', name: 'Fnaf2', image: 'images/fnaf2.jpeg' },
+      { file: 'fnaf3/fnaf3.html', name: 'Fnaf3', image: 'images/fnaf3.jpeg' },
+      { file: 'FNAF4/FNAF4.html', name: 'Fnaf4', image: 'images/fnaf4.jpeg' },
+      { file: 'FNAFSL/FNAFSL.html', name: 'Fnafsl', image: 'images/fnafsl.jpeg' },
+      { file: 'fridaynightfunkin/index.html', name: 'Fridaynightfunkin', image: null },
+      { file: 'friendlyfire/index.html', name: 'Friendlyfire', image: null },
+      { file: 'fruitninja/index.html', name: 'Fruitninja', image: null },
+      { file: 'galaxy-raid/galaxy-raid.html', name: 'Galaxy Raid', image: null },
+      { file: 'Geo-dash/Geo-dash.html', name: 'Geo Dash', image: null },
+      { file: 'geometrydash/index.html', name: 'Geometrydash', image: 'images/geometryDash.jpeg' },
+      { file: 'getawayshootoutnew/index.html', name: 'Getawayshootoutnew', image: null },
+      { file: 'gladihoppers/index.html', name: 'Gladihoppers', image: null },
+      { file: 'googlesnake/index.html', name: 'Googlesnake', image: null },
+      { file: 'gopherkart/index.html', name: 'Gopherkart', image: null },
+      { file: 'grapple pig/grapple pig.html', name: 'Grapple Pig', image: null },
+      { file: 'grindcraft/index.html', name: 'Grindcraft', image: null },
+      { file: 'hexgl/index.html', name: 'Hexgl', image: null },
+      { file: 'hextris/index.html', name: 'Hextris', image: 'images/hextris.jpeg' },
+      { file: 'highwaytraffic/index.html', name: 'Highwaytraffic', image: null },
+      { file: 'jsracer/jsracer.html', name: 'Jsracer', image: 'images/jsracer.png' },
+      { file: 'justoneboss/justoneboss.html', name: 'Justoneboss', image: 'images/justoneboss.png' },
+      { file: 'Konnekt/index.html', name: 'Konnekt', image: 'images/konnekt.png' },
+      { file: 'letssurf/index.html', name: 'Letssurf', image: null },
+      { file: 'littlealchemy/index.html', name: 'Littlealchemy', image: null },
+      { file: 'LumiOSLite/LumiOSLite.html', name: 'Lumi Oslite', image: null },
+      { file: 'mergeroundracers/index.html', name: 'Mergeroundracers', image: null },
+      { file: 'mine/mine.html', name: 'Mine', image: 'images/dogeminer.jpeg' },
+      { file: 'Monkeymart/index.html', name: 'Monkeymart', image: 'images/monkeymart.jpeg' },
+      { file: 'motoroadrash3d/index.html', name: 'Motoroadrash3d', image: null },
+      { file: 'motox3m/index.html', name: 'Motox3m', image: null },
+      { file: 'ninjavsevilcorp/index.html', name: 'Ninjavsevilcorp', image: null },
+      { file: 'omnombounce/index.html', name: 'Omnombounce', image: 'games/games/omnombounce/assets/icon.jpeg' },
+      { file: 'oregon-trail/oregon-trail.html', name: 'Oregon Trail', image: 'images/oregontrail.jpeg' },
+      { file: 'ovo/index.html', name: 'Ovo', image: null },
+      { file: 'ovo2/index.html', name: 'Ovo2', image: null },
+      { file: 'packabunchas/index.html', name: 'Packabunchas', image: null },
+      { file: 'pacman/index.html', name: 'Pacman', image: null },
+      { file: 'paperio/index.html', name: 'Paperio', image: null },
+      { file: 'particleclicker/index.html', name: 'Particleclicker', image: 'games/games/particleclicker/assets/mobile/icon.png' },
+      { file: 'PlanetLife/PlanetLife.html', name: 'Planet Life', image: 'images/planetlife.jpeg' },
+      { file: 'ProgressKnightQuest/ProgressKnightQuest.html', name: 'Progress Knight Quest', image: 'images/progressknight.png' },
+      { file: 'ProgressKnightReborn/ProgressKnightReborn.html', name: 'Progress Knight Reborn', image: 'images/progressknight.png' },
+      { file: 'Proxy/Proxy.html', name: 'Proxy', image: 'images/Proxy.png' },
+      { file: 'pushback/index.html', name: 'Pushback', image: null },
+      { file: 'q1k3/index.html', name: 'Q1k3', image: null },
+      { file: 'r3/index.html', name: 'R3', image: null },
+      { file: 'racer/index.html', name: 'Racer', image: 'images/jsracer.png' },
+      { file: 'radius-raid/radius-raid.html', name: 'Radius Raid', image: 'images/radius-raid.jpg' },
+      { file: 'radiusraid/index.html', name: 'Radiusraid', image: 'images/radius-raid.jpg' },
+      { file: 'redball4/index.html', name: 'Redball4', image: null },
+      { file: 'retrobowl/index.html', name: 'Retrobowl', image: 'games/games/retrobowl/img/icon.jpg' },
+      { file: 'retrohaunt/index.html', name: 'Retrohaunt', image: 'images/retrohaunt.jpeg' },
+      { file: 'riddleschool2/index.html', name: 'Riddleschool2', image: null },
+      { file: 'ritz/index.html', name: 'Ritz', image: null },
+      { file: 'roadblocks/index.html', name: 'Roadblocks', image: null },
+      { file: 'rooftopsnipers/index.html', name: 'Rooftopsnipers', image: null },
+      { file: 'run3/index.html', name: 'Run3', image: null },
+      { file: 'sandboxels.r74n/sandboxels.r74n.html', name: 'Sandboxels R74n', image: 'images/sandboxels.jpeg' },
+      { file: 'sandgame-js/sandgame-js.html', name: 'Sandgame Js', image: 'images/sandgame.jpg' },
+      { file: 'scrapmetal3/index.html', name: 'Scrapmetal3', image: null },
+      { file: 'shuttledeck/index.html', name: 'Shuttledeck', image: null },
+      { file: 'sketchbook04/index.html', name: 'Sketchbook04', image: null },
+      { file: 'sleepingbeauty/index.html', name: 'Sleepingbeauty', image: null },
+      { file: 'slitherio/index.html', name: 'Slitherio', image: null },
+      { file: 'slope/index.html', name: 'Slope', image: null },
+      { file: 'slope2/index.html', name: 'Slope2', image: null },
+      { file: 'snake/index.html', name: 'Snake', image: null },
+      { file: 'snowbattle/index.html', name: 'Snowbattle', image: null },
+      { file: 'soccerrandom/index.html', name: 'Soccerrandom', image: null },
+      { file: 'solitaire/index.html', name: 'Solitaire', image: null },
+      { file: 'spacecompany/index.html', name: 'Spacecompany', image: 'images/spacecompany.png' },
+      { file: 'spacegarden/index.html', name: 'Spacegarden', image: null },
+      { file: 'spacehuggers/index.html', name: 'Spacehuggers', image: null },
+      { file: 'spaceinvaders/index.html', name: 'Spaceinvaders', image: null },
+      { file: 'spaceshooters/spaceshooters.html', name: 'Spaceshooters', image: 'images/spaceshooters.jpeg' },
+      { file: 'stack/index.html', name: 'Stack', image: null },
+      { file: 'stackball/index.html', name: 'Stackball', image: null },
+      { file: 'stickman-hook/index.html', name: 'Stickman Hook', image: null },
+      { file: 'stickmanboost/index.html', name: 'Stickmanboost', image: null },
+      { file: 'stickmanclimb/index.html', name: 'Stickmanclimb', image: 'games/games/stickmanclimb/icon.avif' },
+      { file: 'stickmangolf/index.html', name: 'Stickmangolf', image: null },
+      { file: 'stickmanhook/index.html', name: 'Stickmanhook', image: null },
+      { file: 'stickmansurvival/index.html', name: 'Stickmansurvival', image: 'games/games/stickmansurvival/Icon.png' },
+      { file: 'subwaysurfers/index.html', name: 'Subwaysurfers', image: null },
+      { file: 'subwaysurfersny/index.html', name: 'Subwaysurfersny', image: null },
+      { file: 'subwaysurferssingapore/index.html', name: 'Subwaysurferssingapore', image: null },
+      { file: 'super-mario/super-mario.html', name: 'Super Mario', image: null },
+      { file: 'tanks/tanks.html', name: 'Tanks', image: null },
+      { file: 'tanukisunset/index.html', name: 'Tanukisunset', image: null },
+      { file: 'Terraria 1.0/Terraria 1.0.html', name: 'Terraria 1 0', image: 'images/terraria.png' },
+      { file: 'tetris/index.html', name: 'Tetris', image: null },
+      { file: 'themazeofspacegoblins/index.html', name: 'Themazeofspacegoblins', image: null },
+      { file: 'timeshooter/index.html', name: 'Timeshooter', image: null },
+      { file: 'timeshooter2/index.html', name: 'Timeshooter2', image: null },
+      { file: 'timeshooter3/index.html', name: 'Timeshooter3', image: null },
+      { file: 'tinyfishing/index.html', name: 'Tinyfishing', image: null },
+      { file: 'tombofthemask/index.html', name: 'Tombofthemask', image: null },
+      { file: 'topspeedracing3d/index.html', name: 'Topspeedracing3d', image: null },
+      { file: 'towermaster/index.html', name: 'Towermaster', image: null },
+      { file: 'trimps/index.html', name: 'Trimps', image: null },
+      { file: 'tunnelrush/index.html', name: 'Tunnelrush', image: null },
+      { file: 'valorant/valorant.html', name: 'Valorant', image: 'images/valorant.jpeg' },
+      { file: 'vex3/index.html', name: 'Vex3', image: null },
+      { file: 'vex4/index.html', name: 'Vex4', image: null },
+      { file: 'vex5/index.html', name: 'Vex5', image: null },
+      { file: 'vex6/index.html', name: 'Vex6', image: 'games/games/vex6/assets/icon.jpeg' },
+      { file: 'webecomewhatwebehold/index.html', name: 'Webecomewhatwebehold', image: null },
+      { file: 'Windows8/Windows8.html', name: 'Windows8', image: 'images/windows8.jpeg' },
+      { file: 'wordle/wordle.html', name: 'Wordle', image: 'images/wordle.png' },
+      { file: 'worldshardestgame2/index.html', name: 'Worldshardestgame2', image: null },
+      { file: 'xx142b2exe/index.html', name: 'Xx142b2exe', image: null },
+      { file: 'youarejeffbezos/youarejeffbezos.html', name: 'Youarejeffbezos', image: 'images/youarejeffbezos.png' },
+      { file: 'zombsroyale/index.html', name: 'Zombsroyale', image: null }
+    ];
+
+    const grid = document.getElementById('games-grid');
+    const searchInput = document.getElementById('search-input');
+    const searchClear = document.getElementById('search-clear');
+    const resultsMeta = document.getElementById('results-meta');
+    const noResults = document.getElementById('no-results');
+    const baseUrl = 'games/';
+
+    function normalize(s) {
+      return s.toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    function filterGames(query) {
+      const q = normalize(query);
+      if (!q) return GAMES;
+      return GAMES.filter(({ name }) => normalize(name).includes(q));
+    }
+
+    function createGameCard({ file, name, image }) {
+      const a = document.createElement('a');
+      a.className = 'game-card';
+      a.href = baseUrl + file;
+
+      if (image) {
+        const img = document.createElement('img');
+        img.className = 'game-card-image';
+        img.src = image;
+        img.alt = name;
+        img.loading = 'lazy';
+        img.onerror = () => {
+          img.style.display = 'none';
+          const ph = document.createElement('div');
+          ph.className = 'game-card-placeholder';
+          ph.textContent = name.charAt(0);
+          a.insertBefore(ph, a.querySelector('.game-card-label') || a);
+        };
+        a.appendChild(img);
+      } else {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'game-card-placeholder';
+        placeholder.textContent = name.charAt(0);
+        a.appendChild(placeholder);
+      }
+
+      const label = document.createElement('span');
+      label.className = 'game-card-label';
+      label.textContent = name;
+      a.appendChild(label);
+
+      return a;
+    }
+
+    function renderGames(games) {
+      grid.innerHTML = '';
+      games.forEach((game) => grid.appendChild(createGameCard(game)));
+    }
+
+    function updateUI() {
+      const query = searchInput.value;
+      const filtered = filterGames(query);
+      renderGames(filtered);
+
+      searchClear.classList.toggle('visible', query.length > 0);
+      noResults.hidden = filtered.length > 0;
+
+      if (query.length > 0) {
+        resultsMeta.textContent = filtered.length === 1
+          ? '1 game'
+          : `${filtered.length} games`;
+      } else {
+        resultsMeta.textContent = '';
+      }
+    }
+
+    searchInput.addEventListener('input', updateUI);
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        searchInput.focus();
+        updateUI();
+      }
+    });
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      searchInput.focus();
+      updateUI();
+    });
+
+    updateUI();
+  </script>
+</body>
+</html>
